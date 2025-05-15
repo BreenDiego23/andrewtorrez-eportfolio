@@ -1,22 +1,28 @@
 // Created by Andrew Torrez for CS-465 SNHU
-// Last update May 6th 2025
+// Last update May 14th 2025
 
 const express = require('express');
 const path = require('path');
+const hbs = require('hbs');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from the current directory
-app.use(express.static(__dirname));
+// Register partials (optional if you haven’t added any yet)
+hbs.registerPartials(path.join(__dirname, '/app_server/views/partials'));
 
-// Fallback route
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-  });  
+// Set view engine and views folder
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, '/app_server/views'));
 
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Import and use your new router
+const indexRouter = require('./app_server/routes/index');
+app.use('/', indexRouter);
+
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
-
-  
