@@ -22,6 +22,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 const indexRouter = require('./app_server/routes/index');
 app.use('/', indexRouter);
 
+// Import and use your travel router
+const travelRouter = require('./app_server/routes/travel');
+app.use('/travel', travelRouter);
+
+// Import and use your room router
+const roomsRouter = require('./app_server/routes/rooms');
+app.use('/rooms', roomsRouter);
+
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
