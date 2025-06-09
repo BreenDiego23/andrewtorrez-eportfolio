@@ -11,6 +11,9 @@ const PORT = process.env.PORT || 3000;
 // Register partials (optional if you haven’t added any yet)
 hbs.registerPartials(path.join(__dirname, '/app_server/views/partials'));
 
+// Brings in our db
+require('./app_api/models/db');
+
 // Set view engine and views folder
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, '/app_server/views'));
@@ -29,6 +32,12 @@ app.use('/travel', travelRouter);
 // Import and use your room router
 const roomsRouter = require('./app_server/routes/rooms');
 app.use('/rooms', roomsRouter);
+
+// Import and use your api router
+const apiRouter = require('./app_api/routes/index');
+app.use('/api', apiRouter);
+
+app.use(express.json());
 
 
 // Start the server
