@@ -44,16 +44,61 @@ const tripsFindByCode = async (req, res) => {
 };
   
 const tripsAddTrip = async (req, res) => {
-    try {
-      const trip = await Model.create(req.body);
-      res.status(201).json(trip);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+  const newTrip = new Trip({
+    code: req.body.code,
+    name: req.body.name,
+    length: req.body.length,
+    start: req.body.start,
+    resort: req.body.resort,
+    perPerson: req.body.perPerson,
+    image: req.body.image,
+    description: req.body.description
+  });
+
+  const q = await newTrip.save();
+
+  if (!q) {
+    return res
+      .status(400)
+      .json({ message: 'Failed to save new trip' });
+  } else {
+    return res
+      .status(201)
+      .json(q);
+  }
+};
+
+const tripsUpdateTrip = async (req, res) => {
+  const tripCode = req.params.tripCode;
+
+  try {
+    const updatedTrip = await Model.findOneAndUpdate(
+      { code: tripCode }, // Find trip by code
+      {
+        name: req.body.name,
+        length: req.body.length,
+        start: req.body.start,
+        resort: req.body.resort,
+        perPerson: req.body.perPerson,
+        image: req.body.image,
+        description: req.body.description
+      },
+      { new: true } // Return the updated document
+    ).exec();
+
+    if (!updatedTrip) {
+      return res.status(404).json({ message: 'Trip not found to update' });
     }
-  };
+
+    return res.status(200).json(updatedTrip);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
 
 module.exports = {
   tripsList,
   tripsFindByCode,
-  tripsAddTrip 
+  tripsAddTrip,
+  tripsUpdateTrip
 };

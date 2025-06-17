@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Trip } from '../models/trips';
+import { Trip } from '../models/trips'
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,7 @@ export class TripDataService {
     return this.http.get<Trip[]>(this.apiUrl);
   }
 
-  // Get a single trip by trip code (optional if you're not using this yet)
+  // Get a single trip
   public getTrip(tripCode: string): Observable<Trip> {
     return this.http.get<Trip>(`${this.apiUrl}/${tripCode}`);
   }

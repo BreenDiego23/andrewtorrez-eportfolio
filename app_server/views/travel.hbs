@@ -1,24 +1,38 @@
-{{> header}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
 
-<div id="background">
-  <div id="page">
-    <div id="contents">
-      <div class="box">
-        <div class="body">
-          <h1>{{title}}</h1>
-          <ul id="sites">
-            {{#each trips}}
-              <li>
-                <a href="#"><img src="/images/{{this.image}}" alt="{{this.name}}"></a>
-                <h2>{{this.name}}</h2>
-                {{{this.description}}}
-              </li>
-            {{/each}}
-          </ul>
+  {{> header}}
+
+  <div id="background">
+    <div id="page">
+      <div id="contents">
+        <div class="box">
+          <div class="body">
+            <h1>{{title}}</h1>
+            <ul id="sites">
+              {{#each trips}}
+                <li>
+                  <a href="/travel/{{this.code}}">
+                    <img src="/images/{{this.image}}" alt="{{this.name}}">
+                  </a>
+                  <h2><a href="/travel/{{this.code}}">{{this.name}}</a></h2>
+                  {{{this.description}}}
+                </li>
+              {{/each}}
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-{{> footer}}
+  {{> footer}}
+
+</body>
+</html>

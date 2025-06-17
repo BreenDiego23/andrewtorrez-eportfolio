@@ -1,0 +1,57 @@
+<div class="col-md-4">
+  <h2 class="text-center">Add Trip</h2>
+  <form [formGroup]="addForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label>Code:</label>
+      <input
+        type="text"
+        formControlName="code"
+        placeholder="Code"
+        class="form-control"
+        [ngClass]="{ 'is-invalid': submitted && f['code'].errors }"
+      />
+      <div *ngIf="submitted && f['code'].errors" class="invalid-feedback">
+        <div *ngIf="f['code'].errors?.['required']">Trip Code is required</div>
+      </div>
+    </div>
+
+    <!-- Repeat this same structure for each field -->
+
+    <div class="form-group">
+      <label>Name:</label>
+      <input type="text" formControlName="name" placeholder="Trip Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Length (days):</label>
+      <input type="number" formControlName="length" placeholder="Length" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Start Date:</label>
+      <input type="date" formControlName="start" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Resort Name:</label>
+      <input type="text" formControlName="resort" placeholder="Resort" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Price per Person:</label>
+      <input type="number" formControlName="perPerson" placeholder="Price" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Image URL:</label>
+      <input type="text" formControlName="image" placeholder="Image URL" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Description:</label>
+      <textarea formControlName="description" class="form-control" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block mt-3">Submit</button>
+  </form>
+</div>
