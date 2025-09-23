@@ -108,6 +108,8 @@ int main() {
                 std::getline(std::cin, filename);
                 if (trim(filename).empty()) {
                     filename = "data/courses.csv";
+                }
+                
                 courses = loadCourses(filename);
                 if (courses.empty()) {
                     std::cout << "No courses loaded. Check the path (e.g., data/courses.csv) "
