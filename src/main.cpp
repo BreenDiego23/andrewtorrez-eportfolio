@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 #include <limits>
+#include <algorithm>
+#include "string_utils.h"
 
 using namespace std;
 
@@ -21,6 +23,26 @@ struct Course {
     string courseTitle;
     vector<string> prerequisites;
 };
+
+// Parse one CSV line: courseNumber, courseTitle, [prereqs...]
+// Returns true on success and fills 'out'; false if malformed.
+bool parseCourseLine(const std::string& line, Course& out) {
+    std::stringstream ss(line);
+    std::string number, title, rest;
+
+    if (!std::getline(ss, number, ',')) return false;
+    if (!std::getline(ss, title, ','))  return false;
+    std::getline(ss, rest); // may be empty
+
+    number = toUpper(trim(number));
+    title  = trim(title);
+    if (number.empty() || title.empty()) return false;
+
+    out.courseNumber  = number;
+    out.courseTitle   = title;
+    out.prerequisites = splitCommaList(rest);
+    return true;
+}
 
 // Function to load courses from a CSV file into a hash table
 unordered_map<string, Course> loadCourses(const string& filename) {
@@ -33,26 +55,15 @@ unordered_map<string, Course> loadCourses(const string& filename) {
         return courses;
     }
 
-    // Parse the CSV file line by line
     while (getline(file, line)) {
-        stringstream ss(line);
-        Course course;
-        string prerequisites;
-
-        // Read course number, title, and prerequisites from each line
-        getline(ss, course.courseNumber, ',');
-        getline(ss, course.courseTitle, ',');
-        getline(ss, prerequisites);
-
-        // Split prerequisites into a vector
-        stringstream prereqStream(prerequisites);
-        string prereq;
-        while (getline(prereqStream, prereq, ',')) {
-            course.prerequisites.push_back(prereq);
+        if (trim(line).empty()) continue; // ignore blank lines
+        Course c;
+        if (!parseCourseLine(line, c)) {
+            cerr << "Warning: skipping malformed line: " << line << '\n';
+            continue;
         }
-
-        // Add the course to the hash table
-        courses[course.courseNumber] = course;
+        // Insert/overwrite by normalized key (courseNumber already uppercased)
+        courses[c.courseNumber] = std::move(c);
     }
 
     file.close();
@@ -97,18 +108,19 @@ void displayCourseDetails(const unordered_map<string, Course>& courses, const st
     auto it = courses.find(courseNumber);
     if (it != courses.end()) {
         const Course& course = it->second;
-        cout << course.courseNumber << ", " << course.courseTitle << endl;
+        cout << course.courseNumber << ", " << course.courseTitle << '\n';
         cout << "Prerequisites: ";
         if (course.prerequisites.empty()) {
-            cout << "None";
+            cout << "None\n";
         } else {
-            for (const auto& prereq : course.prerequisites) {
-                cout << prereq << " ";
+            for (size_t i = 0; i < course.prerequisites.size(); ++i) {
+                cout << course.prerequisites[i];
+                if (i + 1 < course.prerequisites.size()) cout << ", ";
             }
+            cout << '\n';
         }
-        cout << endl;
     } else {
-        cout << "Course not found." << endl;
+        cout << "Course not found.\n";
     }
 }
 
@@ -151,6 +163,7 @@ int main() {
                     cout << "What course do you want to know about? ";
                     string courseNumber;
                     getline(cin, courseNumber);
+                    courseNumber = toUpper(trim(courseNumber)); // normalize input
                     displayCourseDetails(courses, courseNumber);
                 }
                 break;
