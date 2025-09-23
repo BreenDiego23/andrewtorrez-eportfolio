@@ -147,8 +147,11 @@ int main() {
                 getline(cin, filename);
 
                 courses = loadCourses(filename);
-                if (!courses.empty()) {
-                    cout << courses.size() << " courses loaded successfully." << endl;
+                if (courses.empty()) {
+                    std::cout << "No courses loaded. Check the path (e.g., data/courses.csv) "
+                        << "and ensure each row has at least: number,title[,prereqs...]\n";
+                } else {
+                    std::cout << courses.size() << " courses loaded successfully.\n";
                 }
                 break;
             }
