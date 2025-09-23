@@ -25,6 +25,8 @@ struct Course {
 
 // Parse one CSV line: courseNumber, courseTitle, [prereqs...]
 // Returns true on success and fills 'out'; false if malformed.
+// We parse and normalize here to ensure consistent keys and data format,
+// which simplifies later lookups and display logic.
 bool parseCourseLine(const std::string& line, Course& out) {
     std::stringstream ss(line);
     std::string number, title, rest;
@@ -45,6 +47,7 @@ bool parseCourseLine(const std::string& line, Course& out) {
 
 // Insert course into the map, warning if a duplicate key would be overwritten.
 // Keeping this separate makes loadCourses smaller and the behavior reusable/testable.
+// The warning helps catch data issues early, ensuring the user is aware of potential conflicts.
 static void insertCourse(std::unordered_map<std::string, Course>& courses, Course&& c) {
     if (courses.count(c.courseNumber)) {
         std::cerr << "Warning: duplicate course " << c.courseNumber
@@ -66,6 +69,7 @@ std::unordered_map<std::string, Course> loadCourses(const std::string& filename)
 
     // Read each CSV line, delegate parsing to parseCourseLine(), and delegate
     // map insertion + duplicate policy to insertCourse() to keep this function focused.
+    // This loop is the main data ingestion point; isolating concerns here improves maintainability.
     while (std::getline(file, line)) {
         if (trim(line).empty()) continue; // ignore blank lines
         Course c;
@@ -91,6 +95,8 @@ void displayMenu() {
 }
 
 // Function to display all courses in alphanumeric order
+// Sorting ensures a predictable and user-friendly output order,
+// making it easier for users to browse the course list.
 void displayCourses(const std::unordered_map<std::string, Course>& courses) {
     if (courses.empty()) {
         std::cout << "No courses loaded." << std::endl;
@@ -127,6 +133,8 @@ void displayCourses(const std::unordered_map<std::string, Course>& courses) {
 
 
 // Function to search for a course by course number and display its details
+// This function provides detailed course info; the prerequisite display
+// helps students understand course requirements at a glance.
 void displayCourseDetails(const std::unordered_map<std::string, Course>& courses, const std::string& courseNumber) {
     auto it = courses.find(courseNumber);
     if (it != courses.end()) {
@@ -189,6 +197,8 @@ int main() {
                     std::cout << "What course do you want to know about? ";
                     std::string courseNumber;
                     std::getline(std::cin, courseNumber);
+                    // Normalize input to uppercase and trimmed to ensure consistent lookup keys,
+                    // preventing user input case or whitespace errors from causing misses.
                     courseNumber = toUpper(trim(courseNumber)); // normalize input
                     displayCourseDetails(courses, courseNumber);
                 }
