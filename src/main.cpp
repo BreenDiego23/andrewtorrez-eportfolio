@@ -63,6 +63,10 @@ unordered_map<string, Course> loadCourses(const string& filename) {
             continue;
         }
         // Insert/overwrite by normalized key (courseNumber already uppercased)
+        if (courses.count(c.courseNumber)) {
+            std::cerr << "Warning: duplicate course " << c.courseNumber
+                << " encountered; overwriting previous entry.\n";
+        }
         courses[c.courseNumber] = std::move(c);
     }
 
