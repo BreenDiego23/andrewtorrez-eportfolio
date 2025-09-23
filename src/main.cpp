@@ -43,6 +43,16 @@ bool parseCourseLine(const std::string& line, Course& out) {
     return true;
 }
 
+// Insert course into the map, warning if a duplicate key would be overwritten.
+// Keeping this separate makes loadCourses smaller and the behavior reusable/testable.
+static void insertCourse(std::unordered_map<std::string, Course>& courses, Course&& c) {
+    if (courses.count(c.courseNumber)) {
+        std::cerr << "Warning: duplicate course " << c.courseNumber
+                  << " encountered; overwriting previous entry.\n";
+    }
+    courses[c.courseNumber] = std::move(c);
+}
+
 // Function to load courses from a CSV file into a hash table
 std::unordered_map<std::string, Course> loadCourses(const std::string& filename) {
     std::unordered_map<std::string, Course> courses;
@@ -54,6 +64,8 @@ std::unordered_map<std::string, Course> loadCourses(const std::string& filename)
         return courses;
     }
 
+    // Read each CSV line, delegate parsing to parseCourseLine(), and delegate
+    // map insertion + duplicate policy to insertCourse() to keep this function focused.
     while (std::getline(file, line)) {
         if (trim(line).empty()) continue; // ignore blank lines
         Course c;
@@ -62,11 +74,7 @@ std::unordered_map<std::string, Course> loadCourses(const std::string& filename)
             continue;
         }
         // Insert/overwrite by normalized key (courseNumber already uppercased)
-        if (courses.count(c.courseNumber)) {
-            std::cerr << "Warning: duplicate course " << c.courseNumber
-                << " encountered; overwriting previous entry.\n";
-        }
-        courses[c.courseNumber] = std::move(c);
+        insertCourse(courses, std::move(c));
     }
 
     file.close();
