@@ -15,13 +15,12 @@
 #include <algorithm>
 #include "string_utils.h"
 
-using namespace std;
 
 // Define a structure to hold course information
 struct Course {
-    string courseNumber;
-    string courseTitle;
-    vector<string> prerequisites;
+    std::string courseNumber;
+    std::string courseTitle;
+    std::vector<std::string> prerequisites;
 };
 
 // Parse one CSV line: courseNumber, courseTitle, [prereqs...]
@@ -45,21 +44,21 @@ bool parseCourseLine(const std::string& line, Course& out) {
 }
 
 // Function to load courses from a CSV file into a hash table
-unordered_map<string, Course> loadCourses(const string& filename) {
-    unordered_map<string, Course> courses;
-    ifstream file(filename);
-    string line;
+std::unordered_map<std::string, Course> loadCourses(const std::string& filename) {
+    std::unordered_map<std::string, Course> courses;
+    std::ifstream file(filename);
+    std::string line;
 
     if (!file.is_open()) {
-        cerr << "Error: Could not open file " << filename << endl;
+        std::cerr << "Error: Could not open file " << filename << std::endl;
         return courses;
     }
 
-    while (getline(file, line)) {
+    while (std::getline(file, line)) {
         if (trim(line).empty()) continue; // ignore blank lines
         Course c;
         if (!parseCourseLine(line, c)) {
-            cerr << "Warning: skipping malformed line: " << line << '\n';
+            std::cerr << "Warning: skipping malformed line: " << line << '\n';
             continue;
         }
         // Insert/overwrite by normalized key (courseNumber already uppercased)
@@ -76,75 +75,75 @@ unordered_map<string, Course> loadCourses(const string& filename) {
 
 // Function to display the menu
 void displayMenu() {
-    cout << "\nMenu:" << endl;
-    cout << "1. Load Data Structure." << endl;
-    cout << "2. Print Course List." << endl;
-    cout << "3. Print Course." << endl;
-    cout << "9. Exit" << endl;
+    std::cout << "\nMenu:" << std::endl;
+    std::cout << "1. Load Data Structure." << std::endl;
+    std::cout << "2. Print Course List." << std::endl;
+    std::cout << "3. Print Course." << std::endl;
+    std::cout << "9. Exit" << std::endl;
 }
 
 // Function to display all courses in alphanumeric order
-void displayCourses(const unordered_map<string, Course>& courses) {
+void displayCourses(const std::unordered_map<std::string, Course>& courses) {
     if (courses.empty()) {
-        cout << "No courses loaded." << endl;
+        std::cout << "No courses loaded." << std::endl;
         return;
     }
 
     // Create a vector of courses to sort by course number
-    vector<Course> courseList;
+    std::vector<Course> courseList;
     for (const auto& coursePair : courses) {
         courseList.push_back(coursePair.second);
     }
 
     // Sort the vector by course number
-    sort(courseList.begin(), courseList.end(), [](const Course& a, const Course& b) {
+    std::sort(courseList.begin(), courseList.end(), [](const Course& a, const Course& b) {
         return a.courseNumber < b.courseNumber;
     });
 
     // Print the sorted courses
     for (const auto& course : courseList) {
-        cout << course.courseNumber << ", " << course.courseTitle << endl;
+        std::cout << course.courseNumber << ", " << course.courseTitle << std::endl;
     }
 }
 
 // Function to search for a course by course number and display its details
-void displayCourseDetails(const unordered_map<string, Course>& courses, const string& courseNumber) {
+void displayCourseDetails(const std::unordered_map<std::string, Course>& courses, const std::string& courseNumber) {
     auto it = courses.find(courseNumber);
     if (it != courses.end()) {
         const Course& course = it->second;
-        cout << course.courseNumber << ", " << course.courseTitle << '\n';
-        cout << "Prerequisites: ";
+        std::cout << course.courseNumber << ", " << course.courseTitle << '\n';
+        std::cout << "Prerequisites: ";
         if (course.prerequisites.empty()) {
-            cout << "None\n";
+            std::cout << "None\n";
         } else {
             for (size_t i = 0; i < course.prerequisites.size(); ++i) {
-                cout << course.prerequisites[i];
-                if (i + 1 < course.prerequisites.size()) cout << ", ";
+                std::cout << course.prerequisites[i];
+                if (i + 1 < course.prerequisites.size()) std::cout << ", ";
             }
-            cout << '\n';
+            std::cout << '\n';
         }
     } else {
-        cout << "Course not found.\n";
+        std::cout << "Course not found.\n";
     }
 }
 
 int main() {
-    unordered_map<string, Course> courses;
+    std::unordered_map<std::string, Course> courses;
     int choice = 0;
 
     while (choice != 9) {
         displayMenu();
-        cout << "Enter your choice: ";
-        cin >> choice;
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
 
         // Clear the input buffer to avoid issues with leftover characters
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         switch (choice) {
             case 1: {
-                string filename;
-                cout << "Enter the filename to load: ";
-                getline(cin, filename);
+                std::string filename;
+                std::cout << "Enter the filename to load: ";
+                std::getline(std::cin, filename);
 
                 courses = loadCourses(filename);
                 if (courses.empty()) {
@@ -157,29 +156,29 @@ int main() {
             }
             case 2:
                 if (courses.empty()) {
-                    cout << "No courses loaded. Please load the course data first." << endl;
+                    std::cout << "No courses loaded. Please load the course data first." << std::endl;
                 } else {
-                    cout << "Here is a sample schedule:" << endl;
+                    std::cout << "Here is a sample schedule:" << std::endl;
                     displayCourses(courses);
                 }
                 break;
             case 3: {
                 if (courses.empty()) {
-                    cout << "No courses loaded. Please load the course data first." << endl;
+                    std::cout << "No courses loaded. Please load the course data first." << std::endl;
                 } else {
-                    cout << "What course do you want to know about? ";
-                    string courseNumber;
-                    getline(cin, courseNumber);
+                    std::cout << "What course do you want to know about? ";
+                    std::string courseNumber;
+                    std::getline(std::cin, courseNumber);
                     courseNumber = toUpper(trim(courseNumber)); // normalize input
                     displayCourseDetails(courses, courseNumber);
                 }
                 break;
             }
             case 9:
-                cout << "Thank you for using the course planner!" << endl;
+                std::cout << "Thank you for using the course planner!" << std::endl;
                 break;
             default:
-                cout << choice << " is not a valid option." << endl;
+                std::cout << choice << " is not a valid option." << std::endl;
                 break;
         }
     }
