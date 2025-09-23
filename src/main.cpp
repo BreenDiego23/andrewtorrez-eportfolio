@@ -14,14 +14,8 @@
 #include <limits>
 #include <algorithm>
 #include "string_utils.h"
+#include "course.h"
 
-
-// Define a structure to hold course information
-struct Course {
-    std::string courseNumber;
-    std::string courseTitle;
-    std::vector<std::string> prerequisites;
-};
 
 // Parse one CSV line: courseNumber, courseTitle, [prereqs...]
 // Returns true on success and fills 'out'; false if malformed.
@@ -94,66 +88,6 @@ void displayMenu() {
     std::cout << "9. Exit" << std::endl;
 }
 
-// Function to display all courses in alphanumeric order
-// Sorting ensures a predictable and user-friendly output order,
-// making it easier for users to browse the course list.
-void displayCourses(const std::unordered_map<std::string, Course>& courses) {
-    if (courses.empty()) {
-        std::cout << "No courses loaded." << std::endl;
-        return;
-    }
-
-    // Copy map values into a vector so we can sort them
-    std::vector<Course> courseList;
-    for (const auto& coursePair : courses) {
-        courseList.push_back(coursePair.second);
-    }
-
-    // Sort the vector by course number
-    std::sort(courseList.begin(), courseList.end(),
-              [](const Course& a, const Course& b) {
-                  return a.courseNumber < b.courseNumber;
-              });
-
-    // Print the sorted courses
-    for (const auto& course : courseList) {
-        std::cout << course.courseNumber << ", " << course.courseTitle;
-        if (!course.prerequisites.empty()) {
-            std::cout << " (Prereqs: ";
-            for (size_t i = 0; i < course.prerequisites.size(); ++i) {
-                std::cout << course.prerequisites[i];
-                if (i + 1 < course.prerequisites.size()) std::cout << ", ";
-            }
-            std::cout << ")";
-        }
-        std::cout << '\n';
-    }
-}
-
-
-
-// Function to search for a course by course number and display its details
-// This function provides detailed course info; the prerequisite display
-// helps students understand course requirements at a glance.
-void displayCourseDetails(const std::unordered_map<std::string, Course>& courses, const std::string& courseNumber) {
-    auto it = courses.find(courseNumber);
-    if (it != courses.end()) {
-        const Course& course = it->second;
-        std::cout << course.courseNumber << ", " << course.courseTitle << '\n';
-        std::cout << "Prerequisites: ";
-        if (course.prerequisites.empty()) {
-            std::cout << "None\n";
-        } else {
-            for (size_t i = 0; i < course.prerequisites.size(); ++i) {
-                std::cout << course.prerequisites[i];
-                if (i + 1 < course.prerequisites.size()) std::cout << ", ";
-            }
-            std::cout << '\n';
-        }
-    } else {
-        std::cout << "Course not found.\n";
-    }
-}
 
 int main() {
     std::unordered_map<std::string, Course> courses;
