@@ -21,12 +21,14 @@ data/courses.csv
 
 ## Project Structure
 
+```
 UniversityCoursePlanner/
 ├── src/          # Source code
 │   └── main.cpp
 ├── data/         # Sample input files
 │   └── courses.csv
 └── README.md     # Project documentation
+```
 
 Enhancements Completed (CS-499)
 
