@@ -1,33 +1,50 @@
-# CS 300 Portfolio
+# UniversityCoursePlanner
 
-## Project One: Run-time and Memory Analysis
+A simple C++ console application that loads university courses from a CSV file and allows users to:
 
-- **Problem Solved**: The problem in Project One involved managing and analyzing data using efficient data structures. The goal was to implement and compare various algorithms in terms of their run-time and memory efficiency.
-  
-- **Approach**: I selected appropriate data structures, such as hash tables, to manage data efficiently. Understanding the time complexity of different algorithms and their impact on memory usage helped me make informed decisions throughout the project.
-  
-- **Challenges Overcome**: One of the major challenges I encountered was optimizing the sorting algorithms to handle large datasets effectively. To overcome this, I revisited the course materials, practiced with smaller examples, and broke down the problem into smaller steps.
+- Load course data into memory
+- Display all courses in alphanumeric order
+- Look up details for a specific course (title + prerequisites)
 
-- **Expansion of Approach**: This project expanded my approach to designing software by emphasizing the importance of selecting the right data structure for the right task. It made me more conscious of performance trade-offs in software development.
+## How to Build & Run
 
-- **Evolution of Programming Style**: My programming style has evolved to prioritize maintainability, readability, and adaptability. I now focus on writing clean, modular code with clear comments, consistent variable naming, and attention to detail, ensuring that future modifications and debugging will be easier.
+From the root of the project:
 
-## Project Two: Course Planner
+```bash
+g++ -std=c++17 -Wall -Wextra -o courseplanner src/main.cpp
+./courseplanner
+```
 
-- **Problem Solved**: The problem in Project Two was to create a course planner application that allows users to load course data, display an alphanumeric list of courses, and view course prerequisites.
+When prompted, enter the CSV file path:
 
-- **Approach**: I used a hash table data structure to store the course information. This allowed for efficient lookup and manipulation of course data, which was essential for providing quick responses to user queries.
+data/courses.csv
 
-- **Challenges Overcome**: A key challenge was ensuring that the program could handle invalid inputs gracefully, such as incorrect file names or non-existent course numbers. I implemented error-checking mechanisms to improve the program's robustness.
+## Project Structure
 
-- **Expansion of Approach**: This project helped me deepen my understanding of how to organize and manipulate data in a real-world application. It also reinforced the importance of user experience in software design by ensuring that the program responds well to various user inputs.
+UniversityCoursePlanner/
+├── src/          # Source code
+│   └── main.cpp
+├── data/         # Sample input files
+│   └── courses.csv
+└── README.md     # Project documentation
 
-- **Evolution of Programming Style**: My focus on writing maintainable and adaptable code has continued to grow. This project reinforced the value of modular design, where each function and data structure has a single, clear responsibility.
+Enhancements Completed (CS-499)
 
-## Reflection
+This artifact has been enhanced as part of CS-499 to better demonstrate Algorithms and Data Structures skills:
+	•	Case-insensitive lookups: User input is normalized (trim + uppercase).
+	•	CSV validation: Skips malformed rows, warns on duplicates, ensures minimum column count.
+	•	Duplicate handling: Warns when a course number appears twice in the input.
+	•	Sorted output: Courses displayed in alphanumeric order using std::sort.
+	•	Coding standards: Removed using namespace std;, added std:: qualifiers, added comments.
+	•	User experience: Default file path provided, displays number of courses loaded, clearer error messages.
+	•	Demo file: Added bad_courses.csv to showcase robustness against bad input.
 
-Through these projects, I have expanded my knowledge of data structures, algorithms, and software design. I’ve learned to select appropriate data structures based on their performance characteristics and how to implement them in a way that balances run-time efficiency with memory usage.
+⸻
 
-By working on these projects, I’ve become more comfortable with designing programs that are both robust and user-friendly. My programming style has evolved to prioritize clean, readable code, with a focus on maintainability and adaptability.
-
-These projects have prepared me to tackle more complex challenges in software development, as I now have a stronger foundation in data structures, algorithm design, and the importance of considering performance in my solutions.
+Demo Instructions
+	•	Run the app and enter data/courses.csv → loads valid courses and allows lookups.
+	•	Run with data/bad_courses.csv → observe warnings for malformed/duplicate rows.
+	•	From the main menu, try:
+	•	Option 2 to see courses listed in order
+	•	Option 3 to look up a course by number (e.g., cs101 or CS101)ling
+	•	Add clearer comments and documentation
