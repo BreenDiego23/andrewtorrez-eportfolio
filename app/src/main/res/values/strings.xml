@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">InventoryApp</string>
+    <string name="welcome_to_the_inventory_app">Welcome to the Inventory App</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="log_in">LOG IN</string>
+    <string name="create_account">CREATE ACCOUNT</string>
+    <string name="welcome_message_for_the_login_screen">Welcome message for the login screen</string>
+    <string name="enter_your_username">Enter your username</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="press_to_log_in">Press to log in</string>
+    <string name="press_to_create_a_new_account">Press to create a new account</string>
+    <string name="item_name">Item Name</string>
+    <string name="quantity">Quantity</string>
+    <string name="save_item">Save Item</string>
+    <string name="add_new_inventory_item">Add New Inventory Item</string>
+    <string name="inventory_list">Inventory List</string>
+    <string name="title_for_inventory_screen">Title for inventory screen</string>
+    <string name="add_new_item">Add New Item</string>
+    <string name="button_to_add_new_item_to_inventory">Button to add new item to inventory</string>
+    <string name="grid_showing_inventory_items">Grid showing inventory items</string>
+    <string name="notify_low_stock">Notify Low Stock</string>
+    <string name="plus">+</string>
+    <string name="qty_0">Qty: 0</string>
+    <string name="minus">−</string>
+    <string name="delete">DELETE</string>
+</resources>
