@@ -71,7 +71,7 @@ export class EditTripComponent implements OnInit {
       this.tripDataService.updateTrip(this.editForm.value).subscribe({
         next: (value: any) => {
           console.log(value);
-          this.router.navigate(['']);
+          this.router.navigate(['/']);
         },
         error: (error: any) => {
           console.log('Error: ' + error);

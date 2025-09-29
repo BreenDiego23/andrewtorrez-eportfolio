@@ -1,0 +1,20 @@
+.navbar {
+    background-color: #004080;
+    padding: 0.75rem 1.5rem;
+    color: white;
+  }
+  
+  .navbar a {
+    color: white;
+    margin-right: 1rem;
+    text-decoration: none;
+  }
+  
+  .navbar a:hover {
+    text-decoration: underline;
+    color: #ffdd57;
+  }
+  
+  .navbar .ml-auto {
+    margin-left: auto;
+  }

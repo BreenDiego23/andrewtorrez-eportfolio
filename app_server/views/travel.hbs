@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>{{title}}</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
 
   {{> header}}
@@ -17,13 +19,16 @@
             <h1>{{title}}</h1>
             <ul id="sites">
               {{#each trips}}
-                <li>
-                  <a href="/travel/{{this.code}}">
-                    <img src="/images/{{this.image}}" alt="{{this.name}}">
-                  </a>
-                  <h2><a href="/travel/{{this.code}}">{{this.name}}</a></h2>
-                  {{{this.description}}}
-                </li>
+              <li>
+                <a href="/travel/{{this.code}}">
+                  <img src="/images/{{this.image}}" alt="{{this.name}}">
+                </a>
+                <h2><a href="/travel/{{this.code}}">{{this.name}}</a></h2>
+                <p><strong>Length:</strong> {{this.length}} days</p>
+                <p><strong>Start:</strong> {{this.start}}</p>
+                <p><strong>Price:</strong> ${{this.perPerson}}</p>
+                <p>{{{this.description}}}</p>
+              </li>
               {{/each}}
             </ul>
           </div>
@@ -35,4 +40,5 @@
   {{> footer}}
 
 </body>
+
 </html>

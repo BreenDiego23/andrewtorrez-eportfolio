@@ -1,16 +1,17 @@
-const fs = require('fs');
-const path = require('path');
+const Trip = require('../../app_api/models/trips.js');
 
-const travelPage = (req, res) => {
+const travelPage = async (req, res) => {
   console.log("🔍 travelPage route hit");
-  const dataPath = path.join(__dirname, '../../data/trips.json');
-  const rawData = fs.readFileSync(dataPath, 'utf8');
-  const trips = JSON.parse(rawData);
-
-  res.render('travel', {
-    title: 'Travel Destinations',
-    trips: trips
-  });
+  try {
+    const trips = await Trip.find({});
+    res.render('travel', {
+      title: 'Travel Destinations',
+      trips: trips
+    });
+  } catch (err) {
+    console.error(" Error loading trips:", err);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
 module.exports = { travelPage };

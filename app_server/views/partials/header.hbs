@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Travlr Getaways</title>
   <link rel="stylesheet" href="/css/style.css" type="text/css">
 </head>
+
 <body>
   <div id="header">
     <div id="logo">
       <a href="/"><img src="/images/logo.png" alt="LOGO" height="100" width="200"></a>
-    </div>      
+    </div>
 
     <div id="navigation">
-      <ul>
-        <li class="selected"><a href="/">Home</a></li>
+      <ul class="nav navbar-nav">
         <li><a href="/travel">Travel</a></li>
-        <li><a href="/rooms">Rooms</a></li>
-        <li><a href="/meals">Meals</a></li>
         <li><a href="/news">News</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/contact">Contact</a></li>
+        {{#if loggedIn}}
+        <li><a href="/reservations">Reservations</a></li>
+        <li><a href="/checkout">Checkout</a></li>
+        <li><a href="/logout">Logout</a></li>
+        {{else}}
+        <li><a href="/login">Login</a></li>
+        {{/if}}
+        <li><a href="/admin">Admin</a></li>
+        {{#unless loggedIn}}
+        <li><a href="/register">Register</a></li>
+        {{/unless}}
       </ul>
     </div>
   </div>

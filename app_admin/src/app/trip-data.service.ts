@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Trip } from '../models/trips'
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Trip } from './models/trips';  
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,22 +12,32 @@ export class TripDataService {
   constructor(private http: HttpClient) {}
 
   // Get all trips
-  public getTrips(): Observable<Trip[]> {
-    return this.http.get<Trip[]>(this.apiUrl);
+  public getTrips(): Promise<Trip[]> {
+    return firstValueFrom(this.http.get<Trip[]>(this.apiUrl));
   }
 
   // Get a single trip
-  public getTrip(tripCode: string): Observable<Trip> {
-    return this.http.get<Trip>(`${this.apiUrl}/${tripCode}`);
+  public getTrip(tripCode: string): Promise<Trip> {
+    return firstValueFrom(this.http.get<Trip>(`${this.apiUrl}/${tripCode}`));
   }
 
   // Add a new trip
-  public addTrip(formData: Trip): Observable<Trip> {
-    return this.http.post<Trip>(this.apiUrl, formData);
+  public addTrip(formData: Trip): Promise<Trip> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${localStorage.getItem('travlr-token')}`
+      })
+    };
+    return firstValueFrom(this.http.post<Trip>(this.apiUrl, formData, httpOptions));
   }
 
   // Update an existing trip
-  public updateTrip(formData: Trip): Observable<Trip> {
-    return this.http.put<Trip>(`${this.apiUrl}/${formData.code}`, formData);
+  public updateTrip(formData: Trip): Promise<Trip> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${localStorage.getItem('travlr-token')}`
+      })
+    };
+    return firstValueFrom(this.http.put<Trip>(`${this.apiUrl}/${formData.code}`, formData, httpOptions));
   }
 }
