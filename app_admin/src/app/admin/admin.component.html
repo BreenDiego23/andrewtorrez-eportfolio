@@ -3,6 +3,33 @@
 <p *ngIf="loading">Loading trips…</p>
 <p *ngIf="!loading && error" style="color:#b00020">{{ error }}</p>
 
+<!-- Add Trip (simple inline form) -->
+<section style="margin:16px 0; padding:12px; border:1px solid #ddd; border-radius:8px;">
+  <h3 style="margin-top:0;">Add Trip</h3>
+  <form (submit)="onAddSubmit($event)">
+    <div style="display:grid; grid-template-columns: repeat(3, minmax(160px, 1fr)); gap:8px;">
+      <label>Code <input name="code" required></label>
+      <label>Name <input name="name" required></label>
+      <label>Resort <input name="resort" required></label>
+
+      <label>Length (days) <input type="number" name="length" required></label>
+      <label>Start (YYYY-MM-DD) <input type="date" name="start" required></label>
+      <label>Per Person ($) <input type="number" name="perPerson" required></label>
+
+      <label>Image filename <input name="image" placeholder="e.g. hawaii.jpg"></label>
+      <label style="grid-column: 1 / -1;">Description
+        <textarea name="description" rows="3" required></textarea>
+      </label>
+    </div>
+
+    <div style="margin-top:10px;">
+      <button type="submit">Save Trip</button>
+      <span *ngIf="addError" style="color:red; margin-left:8px;">{{ addError }}</span>
+      <span *ngIf="addSuccess" style="color:green; margin-left:8px;">Trip added!</span>
+    </div>
+  </form>
+</section>
+
 <!-- Card grid -->
 <div *ngIf="!loading && !error">
   <div style="
