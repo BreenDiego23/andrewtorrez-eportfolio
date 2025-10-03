@@ -5,6 +5,9 @@
   <meta charset="UTF-8">
   <title>Travlr Getaways</title>
   <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <style>
+    .hidden { display: none !important; }
+  </style>
 </head>
 
 <body>
@@ -17,17 +20,48 @@
       <ul class="nav navbar-nav">
         <li><a href="/travel">Travel</a></li>
         <li><a href="/news">News</a></li>
-        {{#if loggedIn}}
-        <li><a href="/reservations">Reservations</a></li>
-        <li><a href="/checkout">Checkout</a></li>
-        <li><a href="/logout">Logout</a></li>
-        {{else}}
-        <li><a href="/login">Login</a></li>
-        {{/if}}
+        
+        <!-- Shown only when logged in -->
+        <li class="auth-only hidden"><a href="/reservations">Reservations</a></li>
+        <li class="auth-only hidden"><a href="#" id="logoutLink">Logout</a></li>
+        
+        <!-- Shown only when logged out -->
+        <li class="auth-out"><a href="/login">Login</a></li>
+        <li class="auth-out"><a href="/register">Register</a></li>
+
         <li><a href="/admin">Admin</a></li>
-        {{#unless loggedIn}}
-        <li><a href="/register">Register</a></li>
-        {{/unless}}
       </ul>
     </div>
   </div>
+
+  <script>
+    function updateMenu() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        document.querySelectorAll('.auth-only').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.auth-out').forEach(el => el.classList.add('hidden'));
+      } else {
+        document.querySelectorAll('.auth-only').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.auth-out').forEach(el => el.classList.remove('hidden'));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateMenu();
+      const logout = document.getElementById('logoutLink');
+      if (logout) {
+        logout.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('token');
+          localStorage.removeItem('role');
+          localStorage.removeItem('email');
+          window.location.href = '/';
+        });
+      }
+    });
+
+    // Run again on page restore (e.g. back/forward navigation)
+    window.addEventListener('pageshow', updateMenu);
+  </script>
+</body>
+</html>
