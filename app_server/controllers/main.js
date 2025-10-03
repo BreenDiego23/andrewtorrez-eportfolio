@@ -4,7 +4,11 @@ const mongoose = require('mongoose');
 const User = mongoose.model('users');
 
 const index = (req, res) => {
-  res.render('index', { title: "Travlr Getaways", loggedIn: req.session && req.session.token});
+  res.render('index', { 
+    title: "Travlr Getaways", 
+    loggedIn: req.session && req.session.token,
+    token: req.session ? req.session.token : ''
+  });
 };
 
 const login = (req, res) => {

@@ -13,8 +13,13 @@ export class TripDataService {
 
   // Get all trips
   public getTrips(): Promise<Trip[]> {
-    return firstValueFrom(this.http.get<Trip[]>(this.apiUrl));
-  }
+  const httpOptions = {
+    headers: new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    })
+  };
+  return firstValueFrom(this.http.get<Trip[]>(this.apiUrl, httpOptions));
+}
 
   // Get a single trip
   public getTrip(tripCode: string): Promise<Trip> {
@@ -23,13 +28,15 @@ export class TripDataService {
 
   // Add a new trip
   public addTrip(formData: Trip): Promise<Trip> {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': `Bearer ${localStorage.getItem('travlr-token')}`
-      })
-    };
-    return firstValueFrom(this.http.post<Trip>(this.apiUrl, formData, httpOptions));
-  }
+  const token = localStorage.getItem('token') || '';
+  const httpOptions = {
+    headers: new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    })
+  };
+  return firstValueFrom(this.http.post<Trip>(this.apiUrl, formData, httpOptions));
+}
 
   // Update an existing trip
   public updateTrip(formData: Trip): Promise<Trip> {

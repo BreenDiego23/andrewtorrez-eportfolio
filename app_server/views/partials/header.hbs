@@ -29,9 +29,11 @@
         <li class="auth-out"><a href="/login">Login</a></li>
         <li class="auth-out"><a href="/register">Register</a></li>
 
-        <li><a href="/admin">Admin</a></li>
+        <!-- Admin link: two variants; JS will toggle based on localStorage token -->
+        <li id="adminOut"><a href="/admin">Admin</a></li>
+        <li id="adminIn" class="hidden"><a id="adminDeepLink" href="#">Admin</a></li>
       </ul>
-    </div>
+    </div> 
   </div>
 
   <script>
@@ -43,6 +45,21 @@
       } else {
         document.querySelectorAll('.auth-only').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.auth-out').forEach(el => el.classList.remove('hidden'));
+      }
+
+      // --- Admin link swap (this is the key part) ---
+      const adminOut = document.getElementById('adminOut');
+      const adminIn  = document.getElementById('adminIn');
+      const deepLink = document.getElementById('adminDeepLink');
+
+      if (token) {
+        if (deepLink) deepLink.href = 'http://localhost:4200/?token=' + encodeURIComponent(token);
+        if (adminOut) adminOut.classList.add('hidden');
+        if (adminIn)  adminIn.classList.remove('hidden');
+      } else {
+        if (adminOut) adminOut.classList.remove('hidden');
+        if (adminIn)  adminIn.classList.add('hidden');
+        if (deepLink) deepLink.removeAttribute('href');
       }
     }
 

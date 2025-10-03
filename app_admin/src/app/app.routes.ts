@@ -7,8 +7,15 @@ import { ReservationsComponent } from './reservations/reservations.component';
 import { NewsComponent } from './news/news.component';
 import { AdminComponent } from './admin/admin.component';
 import { CheckoutComponent } from './checkout/checkout.component';
+import { AuthGuard } from './auth.guard';
+
 
 export const routes: Routes = [
+  {
+    path: '',
+    component: AdminComponent,
+    canActivate: [AuthGuard],   // <-- protect admin
+  },
   { path: 'add-trip', component: AddTripComponent },
   { path: 'edit-trip', component: EditTripComponent },
   { path: 'login', component: LoginComponent },
