@@ -1,24 +1,25 @@
 const express = require('express');
 const router = express.Router();
 
-const jwt = require("express-jwt");
+// ✅ express-jwt v7+ export name and options
+const jwt = require('express-jwt');
 const auth = jwt({
   secret: process.env.JWT_SECRET,
-  userProperty: 'payload',
-  algorithms: ["HS256"]
+  algorithms: ['HS256'],
+  requestProperty: 'auth' // replaces userProperty (deprecated)
 });
+
+// Debug (optional): confirm secret is present at runtime
+if (!process.env.JWT_SECRET) {
+  console.warn('[api routes] JWT_SECRET is NOT set. Set it in .env');
+}
 
 const authController = require('../controllers/authentication');
 const tripsController = require('../controllers/trips');
 
 // Auth routes
-router
-  .route('/login')
-  .post(authController.login);
-
-router
-  .route('/register')
-  .post(authController.register);
+router.post('/register', authController.register);
+router.post('/login',    authController.login);
 
 // Trip routes
 router

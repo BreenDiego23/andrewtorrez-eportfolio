@@ -1,7 +1,7 @@
 // Created by Andrew Torrez for CS-465 SNHU
 // Last update May 14th 2025
 
-
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const hbs = require('hbs');
@@ -51,6 +51,8 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+
+
 
 // Set up routes
 const indexRouter = require('./app_server/routes/index');

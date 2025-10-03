@@ -1,13 +1,53 @@
-<h1>Register</h1>
-<form action="/register" method="POST">
-  <label for="name">Name:</label><br>
-  <input type="text" name="name" required><br>
+{{> header}}
 
-  <label for="email">Email:</label><br>
-  <input type="email" name="email" required><br>
+<h1>{{title}}</h1>
 
-  <label for="password">Password:</label><br>
-  <input type="password" name="password" required><br><br>
+<form id="regForm">
+  <label>Name:</label>
+  <input id="name" required>
 
-  <button type="submit">Register</button>
+  <label>Email:</label>
+  <input id="email" type="email" required>
+
+  <label>Password:</label>
+  <input id="password" type="password" required>
+
+  <button type="submit">Create Account</button>
 </form>
+
+<p id="regError" style="color:red; display:none;"></p>
+
+<script>
+document.getElementById('regForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const err = document.getElementById('regError');
+  err.style.display = 'none';
+
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const password = document.getElementById('password').value;
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || 'Registration failed');
+
+    // success: store token + basics like we do on login
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role',  data.role || 'user');
+    localStorage.setItem('email', email);
+    sessionStorage.setItem('justRegistered', '1');
+    window.location.href = '/'; // go home as logged-in
+  } catch (e2) {
+    err.textContent = e2.message;
+    err.style.display = 'block';
+  }
+});
+</script>
+
+{{> footer}}
