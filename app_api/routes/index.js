@@ -16,6 +16,7 @@ if (!process.env.JWT_SECRET) {
 
 const authController = require('../controllers/authentication');
 const tripsController = require('../controllers/trips');
+const reservationsCtrl = require('../controllers/reservations');
 
 // Auth routes
 router.post('/register', authController.register);
@@ -31,5 +32,16 @@ router
   .route('/trips/:tripCode')
   .get(tripsController.tripsFindByCode)
   .put(auth, tripsController.tripsUpdateTrip);
+
+// Create /api/reservations (POST add, GET mine)
+router
+  .route('/reservations')
+  .post(auth, reservationsCtrl.add)
+  .get(auth, reservationsCtrl.listMine);
+
+// Delete a specific reservation by tripCode
+router
+  .route('/reservations/:tripCode')
+  .delete(auth, reservationsCtrl.remove);
 
 module.exports = router;
