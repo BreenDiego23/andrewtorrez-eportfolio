@@ -72,7 +72,7 @@ const tripsUpdateTrip = async (req, res) => {
         {
           name: req.body.name,
           length: req.body.length,
-          start: req.body.start,
+          start: new Date(req.body.start),
           resort: req.body.resort,
           perPerson: req.body.perPerson,
           image: req.body.image,
@@ -94,20 +94,36 @@ const tripsUpdateTrip = async (req, res) => {
   });
 };
 
+// Replace your current getUser with this:
 const getUser = async (req, res, callback) => {
-  if (req.payload && req.payload.email) {
-    try {
-      const user = await User.findOne({ email: req.payload.email }).exec();
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      callback(req, res, user.name);
-    } catch (err) {
-      console.log(err);
-      return res.status(404).json(err);
+  // express-jwt v7 puts the decoded token on req.auth
+  const claims = req.auth || req.payload || {};
+  const email = (claims.email || '').toLowerCase().trim();
+  const id    = claims._id || claims.id || null;
+
+  console.log('[getUser] claims:', claims);
+  console.log('[getUser] seeking by:',
+    email ? `email=${email}` : (id ? `id=${id}` : 'none'));
+
+  try {
+    let user = null;
+
+    if (email) {
+      user = await User.findOne({ email }).exec();
     }
-  } else {
-    return res.status(404).json({ message: "User not found" });
+    if (!user && id) {
+      user = await User.findById(id).exec();
+    }
+
+    if (!user) {
+      console.warn('[getUser] token valid, but user not found in DB');
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return callback(req, res, user.name);
+  } catch (err) {
+    console.error('[getUser] error:', err);
+    return res.status(500).json({ message: 'User lookup failed', error: err });
   }
 };
 
