@@ -103,36 +103,30 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  onEdit(t: { code: string }) {
-  localStorage.setItem('tripCode', t.code);
-  this.router.navigate(['/edit-trip']);
-}
-
-async onDelete(t: { code: string }) {
-  if (!confirm(`Delete ${t.code}? This cannot be undone.`)) return;
-
-  try {
-    const token = localStorage.getItem('travlr-token') || '';
-    const res = await fetch(
-      `http://localhost:3000/api/trips/${encodeURIComponent(String(t.code).trim())}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data?.message || res.statusText);
-    }
-
-    this.trips = this.trips.filter(x => x.code !== t.code);
-  } catch (err: any) {
-    console.error(err);
-    alert(`Failed to delete ${t.code}: ${err?.message || err}`);
+    onEdit(t: { code: string }) {
+    localStorage.setItem('tripCode', t.code);
+    this.router.navigate(['/edit-trip']);
   }
-}
+
+  deletingCode: string | null = null;
+
+  async onDelete(t: { code: string; _id?: string }): Promise<void> {
+    if (!confirm(`Delete ${t.code}? This cannot be undone.`)) return;
+
+    this.deletingCode = t.code;
+    try {
+      console.log('[Admin] deleting:', { code: t.code, _id: t._id, typeof_id: typeof t._id });
+      if (t._id) {
+        await this.tripsApi.deleteTripById(String(t._id));    // DELETE /api/trips/:id
+      } else {
+        await this.tripsApi.deleteTrip(String(t.code).trim()); // DELETE /api/trips/:code (only if your API supports it)
+      }
+      this.trips = this.trips.filter(x => x.code !== t.code);
+    } catch (err: any) {
+      console.error('Delete failed:', err);
+      alert(`Failed to delete ${t.code}: ${err?.message || err}`);
+    } finally {
+      this.deletingCode = null;
+    }
+  }
 }

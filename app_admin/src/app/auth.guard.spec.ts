@@ -2,34 +2,33 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AuthGuard } from './auth.guard';
 
-// If AuthenticationService is at src/app/services/authentication.service.ts:
+// Services
 import { AuthenticationService } from './services/authentication.service';
-// If it's at src/app/authentication.service.ts, use:
-// import { AuthenticationService } from './authentication.service';
+import { TripDataService } from './services/trip-data.service';
 
-// If TripDataService is at src/app/trip-data.service.ts:
-import { TripDataService } from './trip-data.service';
-// If it’s at src/app/services/trip-data.service.ts, use:
-// import { TripDataService } from './services/trip-data.service';
+// Models (so our stubs return the correct types)
+import { AuthResponse } from './models/auth-response';
 
 // Storage token
-import { BROWSER_STORAGE } from './storage'; // adjust if yours lives elsewhere
+import { BROWSER_STORAGE } from './storage';
 
 describe('AuthGuard (class)', () => {
   let guard: AuthGuard;
 
-  // tiny stubs
+  // Tiny stubs
   const routerStub = { navigate: jasmine.createSpy('navigate') } as Partial<Router>;
-  const tripDataStub = {
-    login: () => Promise.resolve(),
-    register: () => Promise.resolve(),
-  } as Partial<TripDataService>;
 
-  // we’ll flip this in tests
+  // Return Promise<AuthResponse>, not Promise<void>
+  const tripDataStub: Partial<TripDataService> = {
+    login: () => Promise.resolve({ token: 'test-token' } as AuthResponse),
+    register: () => Promise.resolve({ token: 'test-token' } as AuthResponse),
+  };
+
+  // We’ll flip this in tests
   let loggedIn = true;
   const authStub: Partial<AuthenticationService> = {
     isLoggedIn: () => loggedIn,
-  } as any;
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -38,7 +37,7 @@ describe('AuthGuard (class)', () => {
         { provide: Router, useValue: routerStub },
         { provide: AuthenticationService, useValue: authStub },
         { provide: TripDataService, useValue: tripDataStub },
-        { provide: BROWSER_STORAGE, useValue: window.localStorage }, // or a simple mock object
+        { provide: BROWSER_STORAGE, useValue: window.localStorage }, // or a simple in-memory mock
       ],
     });
 
@@ -51,13 +50,13 @@ describe('AuthGuard (class)', () => {
 
   it('allows activation when logged in', () => {
     loggedIn = true;
-    const ok = guard.canActivate();   // your guard takes 0 args
-    expect(ok).toBeTrue();            // if you return UrlTree on success, adjust assertion
+    const ok = guard.canActivate(); // your guard takes 0 args
+    expect(ok).toBeTrue();
   });
 
   it('blocks activation when NOT logged in', () => {
     loggedIn = false;
     const ok = guard.canActivate();
-    expect(ok).toBeFalse();           // if your guard returns a UrlTree, assert that instead
+    expect(ok).toBeFalse();
   });
 });
