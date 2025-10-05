@@ -20,11 +20,7 @@ router.get('/travel', ctrlTrips.publicTravelPage);
 router.get('/news', mainController.news);
 
 router.get('/reservations', (req, res) => {
-  if (req.session && req.session.token) {
-    res.render('reservations', { title: 'Your Reservations' });
-  } else {
-    res.redirect('/login');
-  }
+  res.render('reservations', {title: 'Your Reservations'})
 });
 
 router.get('/admin', (req, res) => {

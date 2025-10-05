@@ -7,14 +7,22 @@ import { ReservationsComponent } from './reservations/reservations.component';
 import { NewsComponent } from './news/news.component';
 import { AdminComponent } from './admin/admin.component';
 import { CheckoutComponent } from './checkout/checkout.component';
+import { AuthGuard } from './auth.guard';
 
 export const routes: Routes = [
-  { path: 'add-trip', component: AddTripComponent },
-  { path: 'edit-trip', component: EditTripComponent },
+  { path: '', pathMatch: 'full', redirectTo: 'admin' },
+
   { path: 'login', component: LoginComponent },
-  { path: 'reservations', component: ReservationsComponent },
+
+  // TEMP: remove canActivate to unblock UI
+  { path: 'admin', component: AdminComponent }, // , canActivate: [AuthGuard]
+  { path: 'add-trip', component: AddTripComponent }, // , canActivate: [AuthGuard]
+  { path: 'edit-trip', component: EditTripComponent }, // , canActivate: [AuthGuard]
+  { path: 'reservations', component: ReservationsComponent }, // , canActivate: [AuthGuard]
+  { path: 'checkout', component: CheckoutComponent }, // , canActivate: [AuthGuard]
+
+  { path: 'trips', component: TripListingComponent },
   { path: 'news', component: NewsComponent },
-  { path: 'admin', component: AdminComponent },
-  { path: 'checkout', component: CheckoutComponent },
-  { path: '', component: TripListingComponent, pathMatch: 'full' }
+
+  { path: '**', redirectTo: 'admin' }
 ];

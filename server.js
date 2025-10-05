@@ -1,6 +1,5 @@
-// Created by Andrew Torrez for CS-465 SNHU
-// Last update May 14th 2025
-
+// Load environment variables from .env file
+require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
@@ -8,63 +7,72 @@ const hbs = require('hbs');
 const morgan = require('morgan');
 const cors = require('cors');
 const session = require('express-session');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Load database and models before anything that uses them
+// Import database connection and user model
 require('./app_api/models/db');
 require('./app_api/models/users');
 require('./app_api/config/passport');
 
-// Wire in our authentication module
+// Import Passport for authentication
 const passport = require('passport');
 
-// Set up static files
+// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Initialize Passport middleware
 app.use(passport.initialize());
 
-// Use Morgan
+// HTTP request logger middleware
 app.use(morgan('dev'));
 
+// Enable CORS for specified origin and methods
 app.use(cors({
   origin: 'http://localhost:4200',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Register partials
+// Register Handlebars partial templates
 hbs.registerPartials(path.join(__dirname, '/app_server/views/partials'));
 
-// Connect to .env
-require('dotenv').config();
-
-// Set view engine and views folder
+// Configure view engine and views directory
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, '/app_server/views'));
 
-// Parse JSON
+// Parse incoming JSON and URL-encoded payloads
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Configure session management
 app.use(session({
   secret: 'travlr_secret_key',
   resave: false,
   saveUninitialized: true
 }));
 
-// Set up routes
+// Middleware to expose authentication status and token to views
+app.use((req, res, next) => {
+  res.locals.loggedIn = !!(req.session && req.session.token);
+  res.locals.token    = (req.session && req.session.token) || '';
+  next();
+});
+
+// Import route handlers
 const indexRouter = require('./app_server/routes/index');
 const travelRouter = require('./app_server/routes/travel');
 const roomsRouter = require('./app_server/routes/rooms');
 const apiRouter = require('./app_api/routes/index');
 
+// Mount routers on their respective paths
 app.use('/', indexRouter);
 app.use('/travel', travelRouter);
 app.use('/rooms', roomsRouter);
-
 app.use('/api', apiRouter);
 
-// Catch unauthorized error and create 401
+// Error handler for unauthorized access
 app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
     res
@@ -73,7 +81,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-// Start server
+// Start the Express server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

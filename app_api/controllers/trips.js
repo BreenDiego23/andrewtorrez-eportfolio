@@ -72,7 +72,7 @@ const tripsUpdateTrip = async (req, res) => {
         {
           name: req.body.name,
           length: req.body.length,
-          start: req.body.start,
+          start: new Date(req.body.start),
           resort: req.body.resort,
           perPerson: req.body.perPerson,
           image: req.body.image,
@@ -94,20 +94,110 @@ const tripsUpdateTrip = async (req, res) => {
   });
 };
 
-const getUser = async (req, res, callback) => {
-  if (req.payload && req.payload.email) {
+// DELETE /api/trips/:tripCode  (delete by code)
+const tripsDeleteTrip = async (req, res) => {
+  console.log('[DELETE code] auth/claims:', req.auth || req.payload);
+
+  getUser(req, res, async (userName) => {
     try {
-      const user = await User.findOne({ email: req.payload.email }).exec();
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      const { tripCode } = req.params;
+      console.log('[DELETE code] requested code:', tripCode);
+
+      if (!tripCode) {
+        return res.status(400).json({ reason: 'missing-code' });
       }
-      callback(req, res, user.name);
+
+      const exists = await Trip.findOne({ code: tripCode }).exec();
+      if (!exists) {
+        return res.status(404).json({ reason: 'not-in-db', tripCode });
+      }
+
+      const result = await Trip.deleteOne({ code: tripCode }).exec();
+      console.log('[DELETE code] deleteOne result:', result);
+
+      if (result.deletedCount === 0) {
+        return res.status(404).json({ reason: 'delete-no-op', tripCode });
+      }
+
+      return res.status(204).send();
     } catch (err) {
-      console.log(err);
-      return res.status(404).json(err);
+      console.error('[DELETE code] error:', err);
+      return res.status(500).json({ reason: 'server-error', error: err.message });
     }
-  } else {
-    return res.status(404).json({ message: "User not found" });
+  });
+};
+
+// DELETE /api/trips/id/:id  (delete by Mongo _id)
+// DELETE /api/trips/id/:id  (delete by Mongo _id)
+const tripsDeleteTripById = async (req, res) => {
+  // log token/claims to make sure auth is present
+  console.log('[DELETE id] auth/claims:', req.auth || req.payload);
+
+  getUser(req, res, async (userName) => {
+    try {
+      const { id } = req.params;
+      console.log('[DELETE id] requested id:', id);
+
+      // 1) Is it a valid ObjectId format?
+      if (!id || !id.match(/^[a-fA-F0-9]{24}$/)) {
+        console.warn('[DELETE id] invalid ObjectId format');
+        return res.status(400).json({ reason: 'invalid-objectid', id });
+      }
+
+      // 2) Does the document exist?
+      const exists = await Trip.findById(id).exec();
+      if (!exists) {
+        console.warn('[DELETE id] trip not found in DB');
+        return res.status(404).json({ reason: 'not-in-db', id });
+      }
+
+      // 3) Delete
+      const result = await Trip.deleteOne({ _id: id }).exec();
+      console.log('[DELETE id] deleteOne result:', result);
+
+      if (result.deletedCount === 0) {
+        console.warn('[DELETE id] deleteOne affected 0 docs');
+        return res.status(404).json({ reason: 'delete-no-op', id });
+      }
+
+      return res.status(204).send(); // success
+    } catch (err) {
+      console.error('[DELETE id] error:', err);
+      return res.status(500).json({ reason: 'server-error', error: err.message });
+    }
+  });
+};
+
+// Replace your current getUser with this:
+const getUser = async (req, res, callback) => {
+  // express-jwt v7 puts the decoded token on req.auth
+  const claims = req.auth || req.payload || {};
+  const email = (claims.email || '').toLowerCase().trim();
+  const id    = claims._id || claims.id || null;
+
+  console.log('[getUser] claims:', claims);
+  console.log('[getUser] seeking by:',
+    email ? `email=${email}` : (id ? `id=${id}` : 'none'));
+
+  try {
+    let user = null;
+
+    if (email) {
+      user = await User.findOne({ email }).exec();
+    }
+    if (!user && id) {
+      user = await User.findById(id).exec();
+    }
+
+    if (!user) {
+      console.warn('[getUser] token valid, but user not found in DB');
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return callback(req, res, user.name);
+  } catch (err) {
+    console.error('[getUser] error:', err);
+    return res.status(500).json({ message: 'User lookup failed', error: err });
   }
 };
 
@@ -128,5 +218,7 @@ module.exports = {
   tripsFindByCode,
   tripsAddTrip,
   tripsUpdateTrip,
-  publicTravelPage
+  publicTravelPage,
+  tripsDeleteTrip,
+  tripsDeleteTripById
 };
