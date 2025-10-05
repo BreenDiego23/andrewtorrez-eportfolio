@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TripDataService } from '../services/trip-data.service';
 import { Trip } from '../models/trips';
 
@@ -10,13 +10,13 @@ import { Trip } from '../models/trips';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './edit-trip.component.html',
-  styleUrl: './edit-trip.component.css'
+  styleUrls: ['./edit-trip.component.css'] // <-- plural
 })
 export class EditTripComponent implements OnInit {
   public editForm!: FormGroup;
   trip!: Trip;
   submitted = false;
-  message: string = '';
+  message = '';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -24,16 +24,15 @@ export class EditTripComponent implements OnInit {
     private tripDataService: TripDataService
   ) {}
 
-  ngOnInit(): void {
-    let tripCode = localStorage.getItem("tripCode");
+  async ngOnInit(): Promise<void> {
+    const tripCode = localStorage.getItem('tripCode');
     if (!tripCode) {
       alert("Something wrong, couldn't find where I stashed tripCode!");
       this.router.navigate(['']);
       return;
     }
-    console.log('EditTripComponent::ngOnInit');
-    console.log('tripcode:' + tripCode);
 
+    // Build the form
     this.editForm = this.formBuilder.group({
       _id: [],
       code: [tripCode, Validators.required],
@@ -43,40 +42,57 @@ export class EditTripComponent implements OnInit {
       resort: ['', Validators.required],
       perPerson: ['', Validators.required],
       image: ['', Validators.required],
-      description: ['', Validators.required]
+      description: ['', Validators.required],
     });
 
-    this.tripDataService.getTrip(tripCode).subscribe({
-      next: (value: any) => {
-        this.trip = value;
-        const trip = value[0];
-        trip.start = this.formatDateForInput(trip.start);
-        this.editForm.patchValue(trip);
-        if (!value) {
-          this.message = 'No Trip Retrieved!';
-        } else {
-          this.message = 'Trip: ' + tripCode + ' retrieved';
-        }
-        console.log(this.message);
-      },
-      error: (error: any) => {
-        console.log('Error: ' + error);
+    // Make code read-only in the form (important!)
+    this.editForm.get('code')?.disable();
+
+    try {
+      const value = await this.tripDataService.getTrip(tripCode); // Promise
+      const trip: Trip | undefined = Array.isArray(value) ? value[0] : value;
+
+      if (!trip) {
+        this.message = 'No Trip Retrieved!';
+        return;
       }
-    });
+
+      // Keep original trip (especially the true code)
+      this.trip = trip;
+
+      // Patch the form; convert start to yyyy-MM-dd for the date input
+      const formattedStart = this.formatDateForInput(trip.start as any);
+      this.editForm.patchValue({ ...trip, start: formattedStart });
+
+      this.message = `Trip: ${tripCode} retrieved`;
+      console.log(this.message);
+    } catch (error) {
+      console.error('Error: ', error);
+    }
   }
 
-  public onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.submitted = true;
-    if (this.editForm.valid) {
-      this.tripDataService.updateTrip(this.editForm.value).subscribe({
-        next: (value: any) => {
-          console.log(value);
-          this.router.navigate(['/']);
-        },
-        error: (error: any) => {
-          console.log('Error: ' + error);
-        }
-      });
+    if (!this.editForm.valid) return;
+
+    try {
+      // Include disabled controls (like 'code')
+      const raw = this.editForm.getRawValue();
+
+      const payload: Trip = {
+        ...this.trip,            // keep original immutable fields
+        ...raw,                  // user edits
+        code: this.trip.code,    // lock the true code for URL (prevents /trips/nope)
+        length: Number(raw.length),
+        perPerson: Number(raw.perPerson),
+        start: new Date(raw.start as any).toISOString() as any, // backend expects ISO
+      };
+
+      await this.tripDataService.updateTrip(payload); // Promise-based
+      this.router.navigate(['/admin']);
+    } catch (error) {
+      console.error('Error: ', error);
+      alert('Failed to update trip');
     }
   }
 
@@ -84,11 +100,12 @@ export class EditTripComponent implements OnInit {
     return this.editForm.controls;
   }
 
-  private formatDateForInput(dateString: string): string {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = ('0' + (date.getMonth() + 1)).slice(-2);
-    const day = ('0' + date.getDate()).slice(-2);
-    return `${year}-${month}-${day}`;
+  private formatDateForInput(dateValue: string | Date): string {
+    const d = new Date(dateValue);
+    if (isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = ('0' + (d.getMonth() + 1)).slice(-2);
+    const da = ('0' + d.getDate()).slice(-2);
+    return `${y}-${m}-${da}`;
   }
 }

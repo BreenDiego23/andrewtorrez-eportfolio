@@ -32,26 +32,24 @@ export class TripListingComponent implements OnInit {
     this.router.navigate(['add-trip']);
   }
 
-  private getStuff(): void {
-    this.tripDataService.getTrips().subscribe({
-      next: (value: Trip[]) => {
-        this.trips = value;
-        if (value.length > 0) {
-          this.message = `There are ${value.length} trips available.`;
-        } else {
-          this.message = 'There were no trips retrieved from the database';
-        }
-        console.log(this.message);
-      },
-      error: (err: any) => {
-        console.log('Error:', err);
+  private async getStuff(): Promise<void> {
+    try {
+      const value: Trip[] = await this.tripDataService.getTrips();
+      this.trips = value;
+      if (value.length > 0) {
+        this.message = `There are ${value.length} trips available.`;
+      } else {
+        this.message = 'There were no trips retrieved from the database';
       }
-    });
+      console.log(this.message);
+    } catch (err: any) {
+      console.log('Error:', err);
+    }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     console.log('ngOnInit');
-    this.getStuff();
+    await this.getStuff();
   }
 
   public isLoggedIn(): boolean {

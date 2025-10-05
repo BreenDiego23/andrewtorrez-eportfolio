@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { NgIf, NgFor, DecimalPipe, DatePipe, SlicePipe } from '@angular/common';
+import { NgIf, NgFor, DecimalPipe, DatePipe } from '@angular/common';
 import { TripDataService } from '../services/trip-data.service';
+import { Router } from '@angular/router';
 
 type Trip = {
   _id?: string;
@@ -17,7 +18,7 @@ type Trip = {
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [NgIf, NgFor, DecimalPipe, DatePipe, SlicePipe],
+  imports: [NgIf, NgFor, DecimalPipe, DatePipe],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css']
 })
@@ -30,6 +31,9 @@ export class AdminComponent implements OnInit {
   addError = '';
   addSuccess = false;
 
+  constructor(private router: Router, private tripsApi: TripDataService) {}
+
+
   async ngOnInit() {
     await this.loadTrips();
   }
@@ -39,7 +43,7 @@ export class AdminComponent implements OnInit {
     this.error = '';
 
     try {
-      const token = localStorage.getItem('token') || '';
+      const token = localStorage.getItem('travlr-token') || '';
       const res = await fetch('http://localhost:3000/api/trips', {
         headers: { 'Authorization': 'Bearer ' + token }
       });
@@ -77,7 +81,7 @@ export class AdminComponent implements OnInit {
     };
 
     try {
-      const token = localStorage.getItem('token') || '';
+      const token = localStorage.getItem('travlr-token') || '';
       const res = await fetch('http://localhost:3000/api/trips', {
         method: 'POST',
         headers: {
@@ -99,6 +103,36 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  onEdit(t: Trip) { alert(`Edit ${t.code}`); }
-  onDelete(t: Trip) { alert(`Delete ${t.code}`); }
+  onEdit(t: { code: string }) {
+  localStorage.setItem('tripCode', t.code);
+  this.router.navigate(['/edit-trip']);
+}
+
+async onDelete(t: { code: string }) {
+  if (!confirm(`Delete ${t.code}? This cannot be undone.`)) return;
+
+  try {
+    const token = localStorage.getItem('travlr-token') || '';
+    const res = await fetch(
+      `http://localhost:3000/api/trips/${encodeURIComponent(String(t.code).trim())}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data?.message || res.statusText);
+    }
+
+    this.trips = this.trips.filter(x => x.code !== t.code);
+  } catch (err: any) {
+    console.error(err);
+    alert(`Failed to delete ${t.code}: ${err?.message || err}`);
+  }
+}
 }

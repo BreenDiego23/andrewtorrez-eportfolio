@@ -9,7 +9,7 @@ import { TripDataService } from '../services/trip-data.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './add-trip.component.html',
-  styleUrl: './add-trip.component.css'
+  styleUrls: ['./add-trip.component.css']
 })
 export class AddTripComponent implements OnInit {
   public addForm!: FormGroup;
@@ -35,18 +35,27 @@ export class AddTripComponent implements OnInit {
     });
   }
 
-  public onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.submitted = true;
-    if (this.addForm.valid) {
-      this.tripService.addTrip(this.addForm.value).subscribe({
-        next: (data: any) => {
-          console.log(data);
-          this.router.navigate(['']);
-        },
-        error: (error: any) => {
-          console.log('Error: ' + error);
-        }
-      });
+    if (this.addForm.invalid) return;
+
+    // include disabled controls if any
+    const raw = this.addForm.getRawValue ? this.addForm.getRawValue() : this.addForm.value;
+
+    // normalize number fields and date
+    const payload = {
+      ...raw,
+      length: Number(raw.length),
+      perPerson: Number(raw.perPerson),
+      start: new Date(String(raw.start)).toISOString()
+    };
+
+    try {
+      await this.tripService.addTrip(payload); // TripDataService returns a Promise
+      this.addForm.reset();
+      this.router.navigate(['/admin']); // go back to admin grid
+    } catch (error) {
+      console.error('Error:', error);
     }
   }
 

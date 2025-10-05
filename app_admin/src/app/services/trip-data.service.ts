@@ -1,71 +1,93 @@
-import { Inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { Trip } from '../models/trips';
-import { User } from '../models/user';
 import { AuthResponse } from '../models/auth-response';
-import { BROWSER_STORAGE } from '../storage';
-import { Credentials } from '../models/credentials';
+import { User } from '../models/user';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class TripDataService {
   private apiUrl = 'http://localhost:3000/api/trips';
   private baseUrl = 'http://localhost:3000/api';
 
-  constructor(
-    private http: HttpClient,
-    @Inject(BROWSER_STORAGE) private storage: Storage
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  // Get all trips
-  public getTrips(): Observable<Trip[]> {
-    return this.http.get<Trip[]>(this.apiUrl);
-  }
-
-  // Get a single trip by trip code (optional if you're not using this yet)
-  public getTrip(tripCode: string): Observable<Trip> {
-    return this.http.get<Trip>(`${this.apiUrl}/${tripCode}`);
-  }
-
-  // Add a new trip
-  public addTrip(formData: Trip): Observable<Trip> {
-    return this.http.post<Trip>(this.apiUrl, formData);
-  }
-
-  // Update an existing trip
-  public updateTrip(formData: Trip): Observable<Trip> {
-    return this.http.put<Trip>(`${this.apiUrl}/${formData.code}`, formData);
-  }
-
-  // Login method
-  public login(email: string, password: string): Promise<AuthResponse> {
-    return fetch(`${this.baseUrl}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
-    .then(res => res.json())
-    .catch(err => {
-      console.error('TripDataService login error:', err);
-      throw err;
+  private authHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('travlr-token') || ''}`,
+      'Content-Type': 'application/json'
     });
   }
 
-  // Register method
-  public register(user: User, password: string): Promise<AuthResponse> {
-    return this.makeAuthApiCall('register', user);
+  getTrips(): Promise<Trip[]> {
+    return firstValueFrom(
+      this.http.get<Trip[]>(this.apiUrl, { headers: this.authHeaders() })
+    );
   }
 
-  private makeAuthApiCall(urlPath: string, user: User): Promise<AuthResponse> {
-    const url: string = `${this.baseUrl}/${urlPath}`;
-    return firstValueFrom(this.http.post<AuthResponse>(url, user))
-      .catch(this.handleError);
+  // Many Travlr backends return an array for a single code
+  getTrip(tripCode: string): Promise<Trip[]> {
+    return firstValueFrom(
+      this.http.get<Trip[]>(
+        `${this.apiUrl}/${encodeURIComponent(tripCode)}`,
+        { headers: this.authHeaders() }
+      )
+    );
   }
 
-  private handleError(error: any): Promise<any> {
-    console.error('Something has gone wrong', error); // for demo purposes only
-    return Promise.reject(error.message || error);
+  addTrip(formData: Trip): Promise<Trip> {
+    return firstValueFrom(
+      this.http.post<Trip>(this.apiUrl, formData, { headers: this.authHeaders() })
+    );
+  }
+
+  updateTrip(formData: Trip): Promise<Trip> {
+    return firstValueFrom(
+      this.http.put<Trip>(
+        `${this.apiUrl}/${encodeURIComponent(formData.code)}`,
+        formData,
+        { headers: this.authHeaders() }
+      )
+    );
+  }
+
+  deleteTrip(code: string): Promise<void> {
+    return firstValueFrom(
+      this.http.delete<void>(
+        `${this.apiUrl}/${encodeURIComponent(code)}`,
+        { headers: this.authHeaders() }
+      )
+    );
+  }
+  deleteTripById(id: string): Promise<void> {
+  // adjust path if your API uses a different one (e.g. /api/trips/id/:id)
+  return firstValueFrom(
+    this.http.delete<void>(
+      `${this.apiUrl}/id/${encodeURIComponent(id)}`,
+      { headers: this.authHeaders() }
+    )
+  );
+}
+
+  // ---- Auth endpoints (Promise-based) ----
+  login(email: string, password: string): Promise<AuthResponse> {
+    return firstValueFrom(
+      this.http.post<AuthResponse>(
+        `${this.baseUrl}/login`,
+        { email, password },
+        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+      )
+    );
+  }
+  
+  register(user: User, password: string): Promise<AuthResponse> {
+    const body = { ...user, password }; // typically { email, name, password }
+    return firstValueFrom(
+      this.http.post<AuthResponse>(
+        `${this.baseUrl}/register`,
+        body,
+        { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+      )
+    );
   }
 }
