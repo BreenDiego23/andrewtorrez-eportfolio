@@ -1,53 +1,38 @@
-# Andrew Torrez — Computer Science ePortfolio
+# Andrew Torrez — CS 499 ePortfolio
 
-Welcome to my professional ePortfolio.  
-This portfolio showcases my growth, technical skills, and key projects completed during my Bachelor of Science in Computer Science at Southern New Hampshire University.
+Welcome to my Computer Science Capstone ePortfolio.  
+This portfolio demonstrates my growth as a software engineer through three enhanced projects, a professional self-assessment, and a recorded code review presentation.
 
----
+**Code Review Video:** [Watch on YouTube](https://youtu.be/-pLCTRYO0uc)
 
-## Code Review Video
-You can watch my full 45-minute code review walkthrough on YouTube:  
-[Watch the Code Review](https://youtu.be/-pLCTRYO0uc)
-
-[![Watch the Code Review](https://img.youtube.com/vi/-pLCTRYO0uc/0.jpg)](https://youtu.be/-pLCTRYO0uc)
-
-This video provides a detailed walkthrough of my Course Planner project, including an analysis of its structure, identified improvement areas, and planned enhancements across software design, algorithms and data structures, and databases.
+📄 **Professional Self-Assessment:** [CS499_Self_Assesment_AndrewTorrez.docx](CS499_Self_Assesment_AndrewTorrez.docx)
 
 ---
 
-## Artifacts and Narratives
+##  Artifacts
 
-### [Artifact 1 — C++ University Course Planner](./artifact1-courseplanner)
-**Category:** Algorithms and Data Structures  
-This project demonstrates my ability to design and implement efficient data structures for real-world applications using C++ STL components such as `unordered_map` and `vector`.
+### 1. CoursePlanner (Algorithms & Data Structures)
+- [Narrative](CoursePlanner/CS499_Artifact1_Narrative_AndrewTorrez.docx)
+- [README (how to run)](CoursePlanner/README.md)
+- [Source Code](CoursePlanner/code/)
 
-**Narrative:** [CS499_Artifact1_Narrative_AndrewTorrez.docx](./CS499_Artifact1_Narrative_AndrewTorrez.docx)
+### 2. InventoryApp (Software Design & Engineering)
+- [Narrative](InventoryApp/CS499_Artifact2_Narrative_AndrewTorrez.docx)
+- [README (how to run)](InventoryApp/README.md)
+- [Source Code](InventoryApp/code/)
 
----
-
-### [Artifact 2 — Android Inventory App](./artifact2-inventoryapp)
-**Category:** Software Design and Engineering  
-An Android Studio project written in Java that implements CRUD operations using SQLite, demonstrating strong UI/UX design, data persistence, and mobile development skills.
-
-**Narrative:** [CS499_Artifact2_Narrative_AndrewTorrez.docx](./CS499_Artifact2_Narrative_AndrewTorrez.docx)
-
----
-
-### [Artifact 3 — Travlr Full Stack Application](./artifact3-travlrapp)
-**Category:** Databases and Full Stack Integration  
-A MEAN stack travel booking app built with MongoDB, Express, Angular, and Node.js to demonstrate database integration, RESTful API design, and front-end interaction.
-
-**Narrative:** [CS499_Artifact3_Narrative_AndrewTorrez.docx](./CS499_Artifact3_Narrative_AndrewTorrez.docx)
+### 3. TravlrApp (Databases & Full-Stack Development)
+- [Narrative](TravlrApp/CS499_Artifact3_Narrative_AndrewTorrez.docx)
+- [README (how to run)](TravlrApp/README.md)
+- [Source Code](TravlrApp/code/)
 
 ---
 
-## Professional Self-Assessment
-My self-assessment highlights how my coursework and capstone experience have shaped my professional goals and prepared me to enter the field of computer science.
+###  About This Portfolio
 
-**Document:** [CS499_Self_Assessment_AndrewTorrez.docx](./CS499_Self_Assessment_AndrewTorrez.docx)
-
----
-
-## About This ePortfolio
-This ePortfolio is hosted on GitHub Pages to demonstrate professional presentation of my technical work.  
-All code, documentation, and supporting materials reflect my progress toward mastering software engineering, algorithms, and database design.
+This portfolio represents my work and learning from the Computer Science program at Southern New Hampshire University (SNHU).  
+Each artifact reflects key program outcomes, including:
+- Software Design & Engineering  
+- Algorithms & Data Structures  
+- Databases  
+- Security & Collaboration  
