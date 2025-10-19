@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+  {{> header}}
+
+  <div id="background">
+    <div id="page">
+      <div id="contents">
+        <div class="box">
+          <div class="body">
+            <h1>{{title}}</h1>
+            <ul id="sites">
+              {{#each trips}}
+              <li>
+                <a href="/travel/{{this.code}}">
+                  <img src="/images/{{this.image}}" alt="{{this.name}}">
+                </a>
+                <h2><a href="/travel/{{this.code}}">{{this.name}}</a></h2>
+                <p><strong>Length:</strong> {{this.length}} days</p>
+                <p><strong>Start:</strong> {{this.start}}</p>
+                <p><strong>Price:</strong> ${{this.perPerson}}</p>
+                <p>{{{this.description}}}</p>
+                <button
+                  class="add-to-res"
+                  data-code="{{this.code}}"     
+                  data-title="{{this.name}}"   
+                >
+                Add to Reservations
+                </button>
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{> footer}}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".add-to-res").forEach(btn => {
+    btn.addEventListener("click", async () => {
+    const code  = btn.dataset.code;
+    const title = btn.dataset.title;
+
+    try {
+      const res = await fetch("/api/reservations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + (localStorage.getItem("token") ||   "")
+        },
+        body: JSON.stringify({ tripCode: code, tripTitle: title })
+        });
+
+        // If response has no JSON (e.g., 204), guard this call
+      let data = {};
+      try { data = await res.json(); } catch {}
+
+      if (!res.ok) {
+        throw new Error((data && data.message) || `HTTP ${res.status}`);
+        }
+
+      alert(data.message || "Reservation added!");
+      console.log("Reservation response:", data);
+    } catch (err) {
+      console.error("Error adding reservation:", err);
+      alert("Error adding reservation");
+    }
+  });
+});
+});
+</script>
+
+</body>
+
+</html>

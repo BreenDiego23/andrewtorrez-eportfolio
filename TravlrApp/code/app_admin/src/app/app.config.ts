@@ -1,0 +1,16 @@
+import { authInterceptorFn } from './utils/jwt.interceptor';
+import { HttpClientModule } from '@angular/common/http';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    importProvidersFrom(ReactiveFormsModule),
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    importProvidersFrom(HttpClientModule)
+  ]
+};

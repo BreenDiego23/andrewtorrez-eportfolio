@@ -1,0 +1,78 @@
+{{> header}}
+
+<div class="login-container">
+  <h1>{{title}}</h1>
+
+  {{#if error}}
+    <p style="color: red;">{{error}}</p>
+  {{/if}}
+
+  <form id="loginForm">
+    <label>Email:</label>
+    <input type="email" name="email" required><br>
+
+    <label>Password:</label>
+    <input type="password" name="password" required><br>
+
+    <button type="submit">Login</button>
+  </form>
+  <p id="loginError" style="color:red; display:none;"></p>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('loginForm');
+  if (!form) return;
+
+  const errEl = document.getElementById('loginError');
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+
+    // Read and normalize inputs
+    const emailRaw = (form.querySelector('input[name="email"]').value || '').trim();
+    const email = emailRaw.toLowerCase();
+    const password = form.querySelector('input[name="password"]').value || '';
+
+    if (!email || !password) {
+      if (errEl) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; }
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.token) {
+        throw new Error((data && (data.message || data.error)) || 'Login failed');
+      }
+
+      // Persist auth info for header/menu toggling
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role',  data.role || 'user');
+      localStorage.setItem('email', data.email || email);
+
+      // Optional: mark that we just logged in for a flash message on home
+      sessionStorage.setItem('justLoggedIn', '1');
+
+      // Redirect based on role
+      if (data.role === 'admin') {
+        window.location.href = 'http://localhost:4200/admin';
+      } else {
+        window.location.href = '/';
+      }
+    } catch (err) {
+      if (errEl) { errEl.textContent = err.message || 'Login failed.'; errEl.style.display = 'block'; }
+      console.warn('[login] error', err);
+    }
+  });
+})();
+</script>
+
+{{> footer}}

@@ -1,0 +1,76 @@
+<h1>Admin — Trips</h1>
+
+<p *ngIf="loading">Loading trips…</p>
+<p *ngIf="!loading && error" style="color:#b00020">{{ error }}</p>
+
+<!-- Add Trip (simple inline form) -->
+<section style="margin:16px 0; padding:12px; border:1px solid #ddd; border-radius:8px;">
+  <h3 style="margin-top:0;">Add Trip</h3>
+  <form (submit)="onAddSubmit($event)">
+    <div style="display:grid; grid-template-columns: repeat(3, minmax(160px, 1fr)); gap:8px;">
+      <label>Code <input name="code" required></label>
+      <label>Name <input name="name" required></label>
+      <label>Resort <input name="resort" required></label>
+
+      <label>Length (days) <input type="number" name="length" required></label>
+      <label>Start (YYYY-MM-DD) <input type="date" name="start" required></label>
+      <label>Per Person ($) <input type="number" name="perPerson" required></label>
+
+      <label>Image filename <input name="image" placeholder="e.g. hawaii.jpg"></label>
+      <label style="grid-column: 1 / -1;">Description
+        <textarea name="description" rows="3" required></textarea>
+      </label>
+    </div>
+
+    <div style="margin-top:10px;">
+      <button type="submit">Save Trip</button>
+      <span *ngIf="addError" style="color:red; margin-left:8px;">{{ addError }}</span>
+      <span *ngIf="addSuccess" style="color:green; margin-left:8px;">Trip added!</span>
+    </div>
+  </form>
+</section>
+
+<!-- Card grid -->
+<div *ngIf="!loading && !error">
+  <div style="
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap:16px;">
+    <div *ngFor="let t of trips"
+         style="background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);overflow:hidden">
+
+      <div style="width:100%;height:180px;overflow:hidden;background:#f4f4f4">
+        <img [src]="'http://localhost:3000/images/' + t.image"
+            [alt]="t.name"
+            style="width:100%;height:100%;object-fit:cover" />
+      </div>
+
+      <div style="padding:12px">
+        <h2 style="margin:0 0 6px 0;font-size:18px;line-height:1.2">
+          {{ t.code }} — {{ t.name }}
+        </h2>
+
+        <p style="margin:4px 0"><strong>Length:</strong> {{ t.length }}</p>
+        <p style="margin:4px 0"><strong>Start:</strong> {{ t.start | date:'MMM d, y' }}</p>
+        <p style="margin:4px 0"><strong>Resort:</strong> {{ t.resort }}</p>
+        <p style="margin:4px 0"><strong>Per Person:</strong> {{ t.perPerson | number:'1.0-0' }}</p>
+
+        <div style="margin-top:8px;max-height:150px;overflow:auto"
+             [innerHTML]="t.description"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;padding:12px;border-top:1px solid #eee">
+        <button (click)="onEdit(t)"
+                style="padding:8px 12px;border:1px solid #ccc;background:#f6f6f6;border-radius:6px;cursor:pointer">
+          Edit
+        </button>
+        <button (click)="onDelete(t)"
+                style="padding:8px 12px;border:1px solid #e55;background:#fee;border-radius:6px;color:#a00;cursor:pointer">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p *ngIf="!loading && !error && !trips.length">No trips found.</p>

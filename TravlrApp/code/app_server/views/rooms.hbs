@@ -1,0 +1,16 @@
+{{> header}}
+
+<h1>{{title}}</h1>
+
+<ul id="rooms">
+  {{#each rooms}}
+    <li>
+      <a href="#"><img src="/images/{{this.image}}" alt="{{this.name}}"></a>
+      <h2>{{this.name}}</h2>
+      {{{this.description}}}
+      <span class="rate">Rate: {{this.rate}}</span>
+    </li>
+  {{/each}}
+</ul>
+
+{{> footer}}

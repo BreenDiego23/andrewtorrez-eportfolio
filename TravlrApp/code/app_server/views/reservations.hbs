@@ -1,0 +1,90 @@
+
+
+{{> header}}
+
+<div id="background">
+  <div id="page">
+    <div id="contents">
+      <div class="box">
+        <div class="body">
+          <h1>Your Reservations</h1>
+
+          <p id="resStatus">Loading…</p>
+          <ul id="resList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (async function loadReservations() {
+    const status = document.getElementById('resStatus');
+    const list   = document.getElementById('resList');
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        status.textContent = 'Please log in to see your reservations.';
+        return;
+      }
+
+      const res = await fetch('/api/reservations', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error((data && data.message) || 'Failed to load reservations');
+      }
+
+      const items = data.reservations || [];
+      if (!items.length) {
+        status.textContent = 'No reservations yet.';
+        return;
+      }
+
+      status.textContent = '';
+      list.innerHTML = '';
+
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <strong>${item.tripTitle || item.tripCode}</strong>
+          <small style="margin-left:8px;">(${item.tripCode})</small>
+          <button class="remove-btn" data-code="${item.tripCode}" style="margin-left:12px;">Remove</button>
+        `;
+        list.appendChild(li);
+      });
+
+      // wire up remove buttons
+      list.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.remove-btn');
+        if (!btn) return;
+
+        const code = btn.dataset.code;
+        if (!confirm('Remove this reservation?')) return;
+
+        const delRes = await fetch('/api/reservations/' + encodeURIComponent(code), {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (delRes.status === 204) {
+          btn.parentElement.remove();
+          if (!list.children.length) {
+            status.textContent = 'No reservations yet.';
+          }
+        } else {
+          const d = await delRes.json().catch(() => ({}));
+          alert('Failed to remove: ' + (d.message || delRes.statusText));
+        }
+      });
+
+    } catch (err) {
+      console.warn(err);
+      status.textContent = 'Error loading reservations.';
+    }
+  })();
+</script>
+{{> footer}}

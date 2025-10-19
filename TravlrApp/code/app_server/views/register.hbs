@@ -1,0 +1,138 @@
+{{> header}}
+
+<h1>{{title}}</h1>
+
+<form id="regForm">
+  <label>Name:</label>
+  <input id="name" required>
+
+  <label>Email:</label>
+  <input id="email" type="email" required>
+
+  <label>Password:</label>
+  <input id="password" type="password" required>
+
+  <button type="submit">Create Account</button>
+</form>
+
+<p id="regError" style="color:red; display:none;"></p>
+
+<script>
+document.getElementById('regForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const err = document.getElementById('regError');
+  err.style.display = 'none';
+
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const password = document.getElementById('password').value;
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || 'Registration failed');
+
+    // success: store token + basics like we do on login
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role',  data.role || 'user');
+    localStorage.setItem('email', email);
+    sessionStorage.setItem('justRegistered', '1');
+    window.location.href = '/'; // go home as logged-in
+  } catch (e2) {
+    err.textContent = e2.message;
+    err.style.display = 'block';
+  }
+});
+<div id="background">
+  <div id="page">
+    <div id="contents">
+      <div class="box">
+        <div class="body">
+          <h1>Your Reservations</h1>
+
+          <p id="resStatus">Loading…</p>
+          <ul id="resList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (async function loadReservations() {
+    const status = document.getElementById('resStatus');
+    const list   = document.getElementById('resList');
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        status.textContent = 'Please log in to see your reservations.';
+        return;
+      }
+
+      const res = await fetch('/api/reservations', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error((data && data.message) || 'Failed to load reservations');
+      }
+
+      const items = data.reservations || [];
+      if (!items.length) {
+        status.textContent = 'No reservations yet.';
+        return;
+      }
+
+      status.textContent = '';
+      list.innerHTML = '';
+
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <strong>${item.tripTitle || item.tripCode}</strong>
+          <small style="margin-left:8px;">(${item.tripCode})</small>
+          <button class="remove-btn" data-code="${item.tripCode}" style="margin-left:12px;">Remove</button>
+        `;
+        list.appendChild(li);
+      });
+
+      // wire up remove buttons
+      list.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.remove-btn');
+        if (!btn) return;
+
+        const code = btn.dataset.code;
+        if (!confirm('Remove this reservation?')) return;
+
+        const delRes = await fetch('/api/reservations/' + encodeURIComponent(code), {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (delRes.status === 204) {
+          // remove from UI
+          btn.parentElement.remove();
+          if (!list.children.length) {
+            status.textContent = 'No reservations yet.';
+          }
+        } else {
+          const d = await delRes.json().catch(() => ({}));
+          alert('Failed to remove: ' + (d.message || delRes.statusText));
+        }
+      });
+
+    } catch (err) {
+      console.warn(err);
+      status.textContent = 'Error loading reservations.';
+    }
+  })();
+</script>
+
+{{> footer}}
