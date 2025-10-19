@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp">
+
+    <!-- Instruction text for the user -->
+    <TextView
+        android:id="@+id/tvSmsInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="When any item’s quantity drops below 5, an SMS alert will be sent to the emulator number (e.g., 5554). Tap the button below to send a test alert."
+        android:textAppearance="@android:style/TextAppearance.Medium" />
+
+    <EditText
+        android:id="@+id/etPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phone number (default: 5554)"
+        android:inputType="phone"
+        android:padding="8dp"
+        android:layout_marginTop="12dp"/>
+
+    <EditText
+        android:id="@+id/etThreshold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Low-stock threshold (default: 5)"
+        android:inputType="number"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Button to send SMS alerts -->
+    <Button
+        android:id="@+id/sendSmsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send SMS" />
+</LinearLayout>
